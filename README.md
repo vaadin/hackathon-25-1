@@ -1,7 +1,14 @@
 # V25.1 hackaton
 
-This project can be used as a starting point to create your own Vaadin application with Spring Boot.
-It contains all the necessary configuration and some placeholder files to get you started.
+Played around with 
+- Browserless tests
+  - works well with small tests I created. 
+  - Happy there was documentation about how to test with spring security, with a mock user.
+- Badges
+  - Works well. 
+- Signals
+  - Initially confused about the new API, but got it working and it worked as expected.
+
 
 ## Running the application
 
