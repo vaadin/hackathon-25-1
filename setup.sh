@@ -24,9 +24,9 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-info()  { echo -e "${GREEN}[INFO]${NC}  $*"; }
-warn()  { echo -e "${YELLOW}[WARN]${NC}  $*"; }
-error() { echo -e "${RED}[ERROR]${NC} $*"; exit 1; }
+info()  { printf "${GREEN}[INFO]${NC}  %s\n" "$*"; }
+warn()  { printf "${YELLOW}[WARN]${NC}  %s\n" "$*"; }
+error() { printf "${RED}[ERROR]${NC} %s\n" "$*"; exit 1; }
 
 # --------------------------------------------------------------------------
 # 1. Check prerequisites
