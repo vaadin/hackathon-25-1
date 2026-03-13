@@ -38,8 +38,8 @@ if ! command -v java &>/dev/null; then
 fi
 
 JAVA_VERSION=$(java -version 2>&1 | head -1 | sed 's/.*"\([0-9]*\).*/\1/')
-if [ "$JAVA_VERSION" -lt 25 ] 2>/dev/null; then
-    error "Java 25 required, found Java $JAVA_VERSION."
+if ! [ "$JAVA_VERSION" -ge 25 ] 2>/dev/null; then
+    error "Java 25 required, found Java ${JAVA_VERSION:-unknown}. Install Eclipse Temurin 25+36."
 fi
 info "Java $JAVA_VERSION detected."
 
