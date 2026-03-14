@@ -1,21 +1,36 @@
-# SwingBridge Demo: Audiveris + Chess
+# Vaadin SwingBridge Hackathon: Audiveris + Chess
 
-Two Swing desktop applications running in the browser via [Vaadin SwingBridge](https://vaadin.com/docs/latest/tools/modernization-toolkit/swing-bridge), with zero changes to their original source code (only a minor patch to Audiveris for macOS file dialog compatibility).
+During the Vaadin 25.1 hackathon I put [Vaadin SwingBridge](https://vaadin.com/docs/latest/tools/modernization-toolkit/swing-bridge) to the test by running two real, open source Swing desktop applications in the browser, with no changes to their original source code.
+
+I chose two apps with very different complexity profiles:
+
+- **[Java Chess Game](https://github.com/halwins/Java-Chess-Game)**: A simple chess game packaged as a single fat JAR. Straightforward to integrate, good baseline for testing SwingBridge with a minimal Swing app.
+- **[Audiveris](https://github.com/Audiveris/audiveris)**: An advanced music score recognition (OMR) application with 56 dependency JARs, native libraries (Tesseract/Leptonica via JavaCPP), and a requirement for Java 25. A stress test for SwingBridge's classloader isolation, file dialog interception, and rendering capabilities.
 
 | Route | Application | Description |
 |-------|-------------|-------------|
-| `/` | **Audiveris** | Open source music score recognition (OMR). Upload a sheet music image or PDF and Audiveris transcribes it to MusicXML. |
-| `/chess` | **Chess Master** | Two player and AI chess game with configurable difficulty. |
+| `/` | **Audiveris** | Upload a sheet music image or PDF and Audiveris transcribes it to MusicXML |
+| `/chess` | **Chess Master** | Two player and AI chess game with configurable difficulty |
 
-## Prerequisites
+## Issues found
 
-- **Java 25** (e.g. [Eclipse Temurin 25+36](https://adoptium.net/))
-- **Git**
-- **Maven 3.9+** (or use the included Maven Wrapper)
+During the hackathon I identified four issues in SwingBridge and opened tickets:
 
-A Vaadin commercial subscription or trial license is required. On first run you will be prompted to log in to [vaadin.com](https://vaadin.com) to activate a trial automatically.
+1. [**Upload dialog blocks file selection with custom FileFilter**](https://github.com/vaadin/vaadin-swing-bridge/issues/140): When a Swing app uses a custom `FileFilter` subclass (not `FileNameExtensionFilter`), `setAcceptedFileTypes(new String[0])` blocks all file selection in the browser.
+2. [**FileDialog (AWT) is not intercepted**](https://github.com/vaadin/vaadin-swing-bridge/issues/141): Many macOS apps use `java.awt.FileDialog` instead of `JFileChooser`. SwingBridge does not intercept `FileDialog`, so the dialog silently fails to appear.
+3. [**Swing app does not adapt to container CSS size**](https://github.com/vaadin/vaadin-swing-bridge/issues/142): No `ResizeObserver` on the container, and hardcoded 2560x1440 screen bounds in `SwingBridgeGraphicsConfig`. Apps exceed the browser viewport with no way to constrain them via CSS.
+4. [**Download dialog fails to detect file extension with custom FileFilter**](https://github.com/vaadin/vaadin-swing-bridge/issues/143): The download counterpart of issue 1. `determineExtension()` only recognizes `FileNameExtensionFilter`, causing wrong filenames and content types on save.
 
-## Quick Start
+## Setup
+
+The `setup.sh` script automates cloning, patching, and building the external applications:
+
+1. Verifies Java 25 is installed
+2. Clones and builds [Java Chess Game](https://github.com/halwins/Java-Chess-Game) (fat JAR via Maven Shade)
+3. Clones and builds [Audiveris](https://github.com/Audiveris/audiveris) (56 JARs via Gradle `installDist`)
+4. Patches Audiveris to use `JFileChooser` instead of `FileDialog` on macOS, since SwingBridge does not intercept AWT `FileDialog` (issue #141 above). The patch adds a system property guard so the original behavior is preserved outside SwingBridge
+5. Patches SwingBridge to skip `setAcceptedFileTypes` when no extensions are recognized (workaround for issue #140 above, requires access to the [SwingBridge source repo](https://github.com/vaadin/vaadin-swing-bridge))
+6. Copies all JARs to `applibs/`
 
 ```bash
 ./setup.sh
@@ -24,46 +39,18 @@ A Vaadin commercial subscription or trial license is required. On first run you 
 
 Open `http://localhost:8888` for Audiveris or `http://localhost:8888/chess` for Chess.
 
-## What does setup.sh do?
+### Prerequisites
 
-1. Verifies Java 25 is installed
-2. Clones and builds [Java Chess Game](https://github.com/halwins/Java-Chess-Game) (fat JAR via Maven Shade)
-3. Clones and builds [Audiveris](https://github.com/Audiveris/audiveris) (56 JARs via Gradle installDist)
-4. Patches Audiveris to use `JFileChooser` instead of `FileDialog` on macOS (SwingBridge does not intercept AWT `FileDialog`)
-5. Patches SwingBridge to allow file uploads when apps use custom `FileFilter` subclasses (requires access to the [SwingBridge source repo](https://github.com/vaadin/vaadin-swing-bridge))
-6. Copies all JARs to `applibs/`
+- **Java 25** (e.g. [Eclipse Temurin 25+36](https://adoptium.net/))
+- **Git**
+- **Maven 3.9+** (or use the included Maven Wrapper)
 
-## Manual Setup
+A Vaadin commercial subscription or trial license is required. On first run you will be prompted to log in to [vaadin.com](https://vaadin.com) to activate a trial automatically.
 
-If you prefer to run the steps manually:
-
-```bash
-# 1. Build Chess Game
-git clone https://github.com/halwins/Java-Chess-Game.git
-cd Java-Chess-Game && mvn package -DskipTests
-cp target/ChessGame.jar ../applibs/
-cd ..
-
-# 2. Build Audiveris
-git clone -b development https://github.com/Audiveris/audiveris.git
-cd audiveris
-
-# 2a. Patch for macOS file dialogs (replace FileDialog with JFileChooser)
-sed -i '' 's/if (WellKnowns.MAC_OS_X) {/if (WellKnowns.MAC_OS_X \&\& !Boolean.getBoolean("audiveris.useJFileChooser")) {/g' \
-  app/src/main/java/org/audiveris/omr/ui/util/UIUtil.java
-
-./gradlew installDist
-cp app/build/install/app/lib/*.jar ../applibs/
-cd ..
-
-# 3. Run
-./mvnw spring-boot:run
-```
-
-## Project Structure
+## Project structure
 
 ```
-├── setup.sh                          # Automated setup (clone, patch, build)
+├── setup.sh                          # Clone, patch, and build external apps
 ├── pom.xml                           # Spring Boot 4, Vaadin 25.1, SwingBridge 1.0
 ├── .mvn/jvm.config                   # JVM flags for java.desktop module access
 ├── applibs/                          # Application JARs (populated by setup.sh)
@@ -74,17 +61,18 @@ cd ..
         └── ChessGameView.java        # SwingBridge("com.ChessGame") on route /chess
 ```
 
-## How SwingBridge Works
+### How it works
 
 SwingBridge patches `java.desktop` at the JVM level to intercept AWT/Swing rendering. The Swing UI runs on the server and is streamed to the browser via WebSocket. User input (clicks, keyboard, scroll) travels back to the server and is replayed on the actual Swing components.
 
-Each browser session gets its own isolated `AppContext`, so multiple users can use the apps simultaneously.
+Each view creates a `SwingBridge` component pointing to the main class of the target application. The bridge loads all JARs from `applibs/` through an isolated `URLClassLoader`, keeping application dependencies separate from the server classpath. Each browser session gets its own isolated `AppContext`, so multiple users can run the apps simultaneously.
 
-Application JARs are loaded from `applibs/` through an isolated `URLClassLoader`, keeping their dependencies separate from the server classpath.
+The `pom.xml` declares dependencies on the three SwingBridge modules (`swing-bridge-patch`, `swing-bridge-graphics`, `swing-bridge-flow`) and configures the `spring-boot-maven-plugin` with the required `--patch-module`, `--add-exports`, and `--add-reads` JVM flags. The same flags are mirrored in `.mvn/jvm.config` for compilation. Audiveris requires two additional flags: `--add-exports=java.desktop/com.apple.eawt=ALL-UNNAMED` (macOS menu integration) and `--enable-native-access=ALL-UNNAMED` (JavaCPP native libraries).
 
-## Known Issues
+The system property `audiveris.useJFileChooser=true` is set in `pom.xml` so the patched Audiveris falls back to `JFileChooser` instead of `FileDialog`, enabling SwingBridge file dialog interception.
 
-- **macOS file dialogs**: Audiveris uses `FileDialog` (AWT) on macOS for native look and feel. SwingBridge only intercepts `JFileChooser`. The setup script patches Audiveris to fall back to `JFileChooser` via a system property.
-- **Custom file filters**: SwingBridge extracts accepted file extensions only from `FileNameExtensionFilter`. Apps using custom `FileFilter` subclasses need the SwingBridge patch included in the setup script.
-- **Window clipping**: Some Swing apps may have their content clipped at the top or bottom edges in the browser rendering.
-- **Run from CLI only**: Always use `./mvnw spring-boot:run`. IDE play buttons do not apply the required JVM flags.
+### Notes
+
+- Always run with `./mvnw spring-boot:run`. IDE play buttons do not apply the required JVM flags from `.mvn/jvm.config`.
+- The Chess game requires no patches. It works out of the box with SwingBridge.
+- Audiveris requires the `FileDialog` patch (applied by `setup.sh`) and the SwingBridge upload fix (also applied by `setup.sh` if the source repo is accessible).
