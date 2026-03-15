@@ -14,16 +14,28 @@ I chose two apps with very different complexity profiles:
 
 ## Issues found
 
-During the hackathon I identified six issues in SwingBridge and opened tickets:
+During the hackathon I identified six issues in SwingBridge, opened tickets, and submitted PRs with fixes:
 
-1. [**Upload dialog blocks file selection with custom FileFilter**](https://github.com/vaadin/vaadin-swing-bridge/issues/140): When a Swing app uses a custom `FileFilter` subclass (not `FileNameExtensionFilter`), `setAcceptedFileTypes(new String[0])` blocks all file selection in the browser.
-2. [**FileDialog (AWT) is not intercepted**](https://github.com/vaadin/vaadin-swing-bridge/issues/141): Many macOS apps use `java.awt.FileDialog` instead of `JFileChooser`. SwingBridge does not intercept `FileDialog`, so the dialog silently fails to appear.
-3. [**Swing app does not adapt to container CSS size**](https://github.com/vaadin/vaadin-swing-bridge/issues/142): No `ResizeObserver` on the container, and hardcoded 2560x1440 screen bounds in `SwingBridgeGraphicsConfig`. Apps exceed the browser viewport with no way to constrain them via CSS.
-4. [**Download dialog fails to detect file extension with custom FileFilter**](https://github.com/vaadin/vaadin-swing-bridge/issues/143): The download counterpart of issue 1. `determineExtension()` only recognizes `FileNameExtensionFilter`, causing wrong filenames and content types on save.
-5. [**Java 25 compatibility for WindowPeer API changes**](https://github.com/vaadin/vaadin-swing-bridge/issues/144): SwingBridge does not compile with Java 25. `WindowPeer.repositionSecurityWarning()` was removed and `getAppropriateGraphicsConfiguration()` was added. A multi-release JAR approach is recommended to support both Java 21 and 25.
-6. [**Canvas not updated when Swing app resizes its own window internally**](https://github.com/vaadin/vaadin-swing-bridge/issues/145): When a Swing app changes its own window size (e.g. navigating from a menu to a larger game board), the canvas stays clipped to the old dimensions until the page is reloaded.
+| Issue | PR | Description |
+|-------|-----|-------------|
+| [#140](https://github.com/vaadin/vaadin-swing-bridge/issues/140) | [#146](https://github.com/vaadin/vaadin-swing-bridge/pull/146) | Upload dialog blocks file selection with custom `FileFilter` |
+| [#141](https://github.com/vaadin/vaadin-swing-bridge/issues/141) | [#147](https://github.com/vaadin/vaadin-swing-bridge/pull/147) | `FileDialog` (AWT) is not intercepted |
+| [#142](https://github.com/vaadin/vaadin-swing-bridge/issues/142) | [#148](https://github.com/vaadin/vaadin-swing-bridge/pull/148) | Swing app does not adapt to container/viewport size |
+| [#143](https://github.com/vaadin/vaadin-swing-bridge/issues/143) | [#149](https://github.com/vaadin/vaadin-swing-bridge/pull/149) | Download dialog fails to detect file extension with custom `FileFilter` |
+| [#144](https://github.com/vaadin/vaadin-swing-bridge/issues/144) | [#150](https://github.com/vaadin/vaadin-swing-bridge/pull/150) | Java 25 compatibility for `WindowPeer` API changes |
+| [#145](https://github.com/vaadin/vaadin-swing-bridge/issues/145) | [#151](https://github.com/vaadin/vaadin-swing-bridge/pull/151) | Canvas not updated when Swing app resizes its own window internally |
 
 ## Setup
+
+> **Note:** This project depends on `swing-bridge 1.1-SNAPSHOT` which includes all the fixes listed above. Until the PRs are merged into the official release, you need to build SwingBridge locally from the [`hackathon-25-1/manolo-all-fixes`](https://github.com/vaadin/vaadin-swing-bridge/tree/hackathon-25-1/manolo-all-fixes) branch:
+>
+> ```bash
+> git clone https://github.com/vaadin/vaadin-swing-bridge.git
+> cd vaadin-swing-bridge
+> git checkout hackathon-25-1/manolo-all-fixes
+> mvn install -DskipTests
+> cd ..
+> ```
 
 The `setup.sh` script automates cloning and building the external applications:
 
@@ -50,8 +62,8 @@ A Vaadin commercial subscription or trial license is required. On first run you 
 ## Project structure
 
 ```
-├── setup.sh                          # Clone, patch, and build external apps
-├── pom.xml                           # Spring Boot 4, Vaadin 25.1, SwingBridge 1.0
+├── setup.sh                          # Clone and build external apps
+├── pom.xml                           # Spring Boot 4, Vaadin 25.1, SwingBridge 1.1-SNAPSHOT
 ├── .mvn/jvm.config                   # JVM flags for java.desktop module access
 ├── applibs/                          # Application JARs (populated by setup.sh)
 └── src/main/java/com/example/
@@ -72,4 +84,4 @@ The `pom.xml` declares dependencies on the three SwingBridge modules (`swing-bri
 ### Notes
 
 - Always run with `./mvnw spring-boot:run`. IDE play buttons do not apply the required JVM flags from `.mvn/jvm.config`.
-- All SwingBridge fixes are tracked in the [`hackathon/25.1-fixes`](https://github.com/vaadin/vaadin-swing-bridge/tree/hackathon/25.1-fixes) branch.
+- All SwingBridge fixes are tracked in the [`hackathon-25-1/manolo-all-fixes`](https://github.com/vaadin/vaadin-swing-bridge/tree/hackathon-25-1/manolo-all-fixes) branch.
