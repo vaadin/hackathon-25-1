@@ -14,12 +14,14 @@ I chose two apps with very different complexity profiles:
 
 ## Issues found
 
-During the hackathon I identified four issues in SwingBridge and opened tickets:
+During the hackathon I identified six issues in SwingBridge and opened tickets:
 
 1. [**Upload dialog blocks file selection with custom FileFilter**](https://github.com/vaadin/vaadin-swing-bridge/issues/140): When a Swing app uses a custom `FileFilter` subclass (not `FileNameExtensionFilter`), `setAcceptedFileTypes(new String[0])` blocks all file selection in the browser.
 2. [**FileDialog (AWT) is not intercepted**](https://github.com/vaadin/vaadin-swing-bridge/issues/141): Many macOS apps use `java.awt.FileDialog` instead of `JFileChooser`. SwingBridge does not intercept `FileDialog`, so the dialog silently fails to appear.
 3. [**Swing app does not adapt to container CSS size**](https://github.com/vaadin/vaadin-swing-bridge/issues/142): No `ResizeObserver` on the container, and hardcoded 2560x1440 screen bounds in `SwingBridgeGraphicsConfig`. Apps exceed the browser viewport with no way to constrain them via CSS.
 4. [**Download dialog fails to detect file extension with custom FileFilter**](https://github.com/vaadin/vaadin-swing-bridge/issues/143): The download counterpart of issue 1. `determineExtension()` only recognizes `FileNameExtensionFilter`, causing wrong filenames and content types on save.
+5. [**Java 25 compatibility for WindowPeer API changes**](https://github.com/vaadin/vaadin-swing-bridge/issues/144): SwingBridge does not compile with Java 25. `WindowPeer.repositionSecurityWarning()` was removed and `getAppropriateGraphicsConfiguration()` was added. A multi-release JAR approach is recommended to support both Java 21 and 25.
+6. [**Canvas not updated when Swing app resizes its own window internally**](https://github.com/vaadin/vaadin-swing-bridge/issues/145): When a Swing app changes its own window size (e.g. navigating from a menu to a larger game board), the canvas stays clipped to the old dimensions until the page is reloaded.
 
 ## Setup
 
@@ -29,8 +31,7 @@ The `setup.sh` script automates cloning, patching, and building the external app
 2. Clones and builds [Java Chess Game](https://github.com/halwins/Java-Chess-Game) (fat JAR via Maven Shade)
 3. Clones and builds [Audiveris](https://github.com/Audiveris/audiveris) (56 JARs via Gradle `installDist`)
 4. Patches Audiveris to use `JFileChooser` instead of `FileDialog` on macOS, since SwingBridge does not intercept AWT `FileDialog` (issue #141 above). The patch adds a system property guard so the original behavior is preserved outside SwingBridge
-5. Patches SwingBridge to skip `setAcceptedFileTypes` when no extensions are recognized (workaround for issue #140 above, requires access to the [SwingBridge source repo](https://github.com/vaadin/vaadin-swing-bridge))
-6. Copies all JARs to `applibs/`
+5. Copies all JARs to `applibs/`
 
 ```bash
 ./setup.sh
@@ -75,4 +76,4 @@ The system property `audiveris.useJFileChooser=true` is set in `pom.xml` so the 
 
 - Always run with `./mvnw spring-boot:run`. IDE play buttons do not apply the required JVM flags from `.mvn/jvm.config`.
 - The Chess game requires no patches. It works out of the box with SwingBridge.
-- Audiveris requires the `FileDialog` patch (applied by `setup.sh`) and the SwingBridge upload fix (also applied by `setup.sh` if the source repo is accessible).
+- Audiveris requires the `FileDialog` patch (applied by `setup.sh`). All SwingBridge fixes are tracked in the [`hackathon/25.1-fixes`](https://github.com/vaadin/vaadin-swing-bridge/tree/hackathon/25.1-fixes) branch.
