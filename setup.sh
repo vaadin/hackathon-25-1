@@ -6,14 +6,15 @@ set -euo pipefail
 #
 # Downloads and builds all dependencies:
 #   - Java Chess Game  (fat JAR)
-#   - Audiveris        (56 JARs, patched for JFileChooser on macOS)
+#   - Audiveris        (56 JARs)
 # ============================================================================
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 BUILD_DIR="$SCRIPT_DIR/.build"
 APPLIBS_DIR="$SCRIPT_DIR/applibs"
 
-CHESS_REPO="https://github.com/halwins/Java-Chess-Game.git"
+CHESS_REPO="https://github.com/manolo/Java-Chess-Game.git"
+CHESS_BRANCH="fix/chess-rules"
 AUDIVERIS_REPO="https://github.com/Audiveris/audiveris.git"
 AUDIVERIS_BRANCH="development"
 RED='\033[0;31m'
@@ -60,7 +61,7 @@ if [ -f "$APPLIBS_DIR/ChessGame.jar" ]; then
 else
     info "Cloning Java Chess Game..."
     if [ ! -d "$CHESS_DIR" ]; then
-        git clone --depth 1 "$CHESS_REPO" "$CHESS_DIR"
+        git clone --depth 1 -b "$CHESS_BRANCH" "$CHESS_REPO" "$CHESS_DIR"
     fi
 
     info "Building Chess Game..."
@@ -71,7 +72,7 @@ else
 fi
 
 # --------------------------------------------------------------------------
-# 3. Build Audiveris (with JFileChooser patch for macOS)
+# 3. Build Audiveris
 # --------------------------------------------------------------------------
 AUDIVERIS_DIR="$BUILD_DIR/audiveris"
 
@@ -81,17 +82,6 @@ else
     info "Cloning Audiveris..."
     if [ ! -d "$AUDIVERIS_DIR" ]; then
         git clone --depth 1 -b "$AUDIVERIS_BRANCH" "$AUDIVERIS_REPO" "$AUDIVERIS_DIR"
-    fi
-
-    # Patch: force JFileChooser instead of FileDialog on macOS.
-    # FileDialog is not intercepted by SwingBridge.
-    UIUTIL="$AUDIVERIS_DIR/app/src/main/java/org/audiveris/omr/ui/util/UIUtil.java"
-    if grep -q 'audiveris.useJFileChooser' "$UIUTIL" 2>/dev/null; then
-        info "Audiveris already patched."
-    else
-        info "Patching Audiveris (UIUtil.java: FileDialog -> JFileChooser)..."
-        sed -i.bak 's/if (WellKnowns.MAC_OS_X) {/if (WellKnowns.MAC_OS_X \&\& !Boolean.getBoolean("audiveris.useJFileChooser")) {/g' "$UIUTIL"
-        rm -f "$UIUTIL.bak"
     fi
 
     info "Building Audiveris..."

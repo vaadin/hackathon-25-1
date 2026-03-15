@@ -4,7 +4,7 @@ During the Vaadin 25.1 hackathon I put [Vaadin SwingBridge](https://vaadin.com/d
 
 I chose two apps with very different complexity profiles:
 
-- **[Java Chess Game](https://github.com/halwins/Java-Chess-Game)**: A simple chess game packaged as a single fat JAR. Straightforward to integrate, good baseline for testing SwingBridge with a minimal Swing app.
+- **[Java Chess Game](https://github.com/manolo/Java-Chess-Game/tree/fix/chess-rules)**: A simple chess game packaged as a single fat JAR. Straightforward to integrate, good baseline for testing SwingBridge with a minimal Swing app.
 - **[Audiveris](https://github.com/Audiveris/audiveris)**: An advanced music score recognition (OMR) application with 56 dependency JARs, native libraries (Tesseract/Leptonica via JavaCPP), and a requirement for Java 25. A stress test for SwingBridge's classloader isolation, file dialog interception, and rendering capabilities.
 
 | Route | Application | Description |
@@ -25,13 +25,12 @@ During the hackathon I identified six issues in SwingBridge and opened tickets:
 
 ## Setup
 
-The `setup.sh` script automates cloning, patching, and building the external applications:
+The `setup.sh` script automates cloning and building the external applications:
 
 1. Verifies Java 25 is installed
-2. Clones and builds [Java Chess Game](https://github.com/halwins/Java-Chess-Game) (fat JAR via Maven Shade)
+2. Clones and builds [Java Chess Game](https://github.com/manolo/Java-Chess-Game/tree/fix/chess-rules) (fat JAR via Maven Shade)
 3. Clones and builds [Audiveris](https://github.com/Audiveris/audiveris) (56 JARs via Gradle `installDist`)
-4. Patches Audiveris to use `JFileChooser` instead of `FileDialog` on macOS, since SwingBridge does not intercept AWT `FileDialog` (issue #141 above). The patch adds a system property guard so the original behavior is preserved outside SwingBridge
-5. Copies all JARs to `applibs/`
+4. Copies all JARs to `applibs/`
 
 ```bash
 ./setup.sh
@@ -70,10 +69,7 @@ Each view creates a `SwingBridge` component pointing to the main class of the ta
 
 The `pom.xml` declares dependencies on the three SwingBridge modules (`swing-bridge-patch`, `swing-bridge-graphics`, `swing-bridge-flow`) and configures the `spring-boot-maven-plugin` with the required `--patch-module`, `--add-exports`, and `--add-reads` JVM flags. The same flags are mirrored in `.mvn/jvm.config` for compilation. Audiveris requires two additional flags: `--add-exports=java.desktop/com.apple.eawt=ALL-UNNAMED` (macOS menu integration) and `--enable-native-access=ALL-UNNAMED` (JavaCPP native libraries).
 
-The system property `audiveris.useJFileChooser=true` is set in `pom.xml` so the patched Audiveris falls back to `JFileChooser` instead of `FileDialog`, enabling SwingBridge file dialog interception.
-
 ### Notes
 
 - Always run with `./mvnw spring-boot:run`. IDE play buttons do not apply the required JVM flags from `.mvn/jvm.config`.
-- The Chess game requires no patches. It works out of the box with SwingBridge.
-- Audiveris requires the `FileDialog` patch (applied by `setup.sh`). All SwingBridge fixes are tracked in the [`hackathon/25.1-fixes`](https://github.com/vaadin/vaadin-swing-bridge/tree/hackathon/25.1-fixes) branch.
+- All SwingBridge fixes are tracked in the [`hackathon/25.1-fixes`](https://github.com/vaadin/vaadin-swing-bridge/tree/hackathon/25.1-fixes) branch.

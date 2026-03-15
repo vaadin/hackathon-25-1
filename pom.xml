@@ -9,7 +9,7 @@
     <properties>
         <maven.compiler.source>25</maven.compiler.source>
         <vaadin.version>25.1.0-beta1</vaadin.version>
-        <swing-bridge.version>1.0.0</swing-bridge.version>
+        <swing-bridge.version>1.0-SNAPSHOT</swing-bridge.version>
         <swing-bridge.path>${settings.localRepository}/com/vaadin</swing-bridge.path>
     </properties>
 
@@ -121,7 +121,6 @@
                     </jvmArguments>
                     <systemPropertyVariables>
                         <java.awt.headless>false</java.awt.headless>
-                        <audiveris.useJFileChooser>true</audiveris.useJFileChooser>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
