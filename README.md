@@ -14,16 +14,18 @@ I chose two apps with very different complexity profiles:
 
 ## Issues found
 
-During the hackathon I identified six issues in SwingBridge, opened tickets, and submitted PRs with fixes:
+During the hackathon I identified eight issues in SwingBridge, opened tickets, and submitted PRs with fixes:
 
 | Issue | PR | Description |
 |-------|-----|-------------|
 | [#140](https://github.com/vaadin/vaadin-swing-bridge/issues/140) | [#146](https://github.com/vaadin/vaadin-swing-bridge/pull/146) | Upload dialog blocks file selection with custom `FileFilter` |
-| [#141](https://github.com/vaadin/vaadin-swing-bridge/issues/141) | [#147](https://github.com/vaadin/vaadin-swing-bridge/pull/147) | `FileDialog` (AWT) is not intercepted |
+| [#141](https://github.com/vaadin/vaadin-swing-bridge/issues/141) | [#147](https://github.com/vaadin/vaadin-swing-bridge/pull/147) | `FileDialog` (AWT) is not intercepted: missing toolkit peer, broken modal loop, empty `getFiles()` |
 | [#142](https://github.com/vaadin/vaadin-swing-bridge/issues/142) | [#148](https://github.com/vaadin/vaadin-swing-bridge/pull/148) | Swing app does not adapt to container/viewport size |
 | [#143](https://github.com/vaadin/vaadin-swing-bridge/issues/143) | [#149](https://github.com/vaadin/vaadin-swing-bridge/pull/149) | Download dialog fails to detect file extension with custom `FileFilter` |
 | [#144](https://github.com/vaadin/vaadin-swing-bridge/issues/144) | [#150](https://github.com/vaadin/vaadin-swing-bridge/pull/150) | Java 25 compatibility for `WindowPeer` API changes |
 | [#145](https://github.com/vaadin/vaadin-swing-bridge/issues/145) | [#151](https://github.com/vaadin/vaadin-swing-bridge/pull/151) | Canvas not updated when Swing app resizes its own window internally |
+| [#152](https://github.com/vaadin/vaadin-swing-bridge/issues/152) | [#153](https://github.com/vaadin/vaadin-swing-bridge/pull/153) | Save As triggers spurious overwrite confirmation on temp file |
+| [#154](https://github.com/vaadin/vaadin-swing-bridge/issues/154) | [#155](https://github.com/vaadin/vaadin-swing-bridge/pull/155) | `FileDialog` download defaults to "download" with no file extension |
 
 ## Setup
 
