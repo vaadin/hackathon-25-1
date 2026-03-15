@@ -12,17 +12,6 @@ I chose two apps with very different complexity profiles:
 | `/` | **Audiveris** | Upload a sheet music image or PDF and Audiveris transcribes it to MusicXML |
 | `/chess` | **Chess Master** | Two player and AI chess game with configurable difficulty |
 
-## Demo
-
-https://github.com/vaadin/hackathon-25-1/raw/manolo/hackathon-25-1_x2.mp4
-
-The video shows:
-
-- **Responsive layout**: the Swing app adapts to the browser viewport. Resizing the window and toggling the AppLayout drawer panel both resize the app in real time.
-- **File upload**: a PDF music score is uploaded through the browser. Audiveris receives it and processes each page, running OCR and music recognition.
-- **Multitasking**: while Audiveris processes the score, we switch to the Chess app and play a few moves, then switch back. Each app runs in its own isolated session.
-- **File download**: after processing, the recognized score is exported as MusicXML and downloaded to the local machine, ready to open in a music notation editor like MuseScore.
-
 ## Issues found
 
 During the hackathon I identified eight issues in SwingBridge, opened tickets, and submitted PRs with fixes:
@@ -37,6 +26,17 @@ During the hackathon I identified eight issues in SwingBridge, opened tickets, a
 | [#145](https://github.com/vaadin/vaadin-swing-bridge/issues/145) | [#151](https://github.com/vaadin/vaadin-swing-bridge/pull/151) | Canvas not updated when Swing app resizes its own window internally |
 | [#152](https://github.com/vaadin/vaadin-swing-bridge/issues/152) | [#153](https://github.com/vaadin/vaadin-swing-bridge/pull/153) | Save As triggers spurious overwrite confirmation on temp file |
 | [#154](https://github.com/vaadin/vaadin-swing-bridge/issues/154) | [#155](https://github.com/vaadin/vaadin-swing-bridge/pull/155) | `FileDialog` download defaults to "download" with no file extension |
+
+## Demo
+
+https://github.com/vaadin/hackathon-25-1/raw/manolo/hackathon-25-1_x2.mp4
+
+The video shows:
+
+- **Responsive layout**: the Swing app adapts to the browser viewport. Resizing the window and toggling the AppLayout drawer panel both resize the app in real time.
+- **File upload**: a PDF music score is uploaded through the browser. Audiveris receives it and processes each page, running OCR and music recognition.
+- **Multitasking**: while Audiveris processes the score, we switch to the Chess app and play a few moves, then switch back. Each app runs in its own isolated session.
+- **File download**: after processing, the recognized score is exported as MusicXML and downloaded to the local machine, ready to open in a music notation editor like MuseScore.
 
 ## Setup
 
