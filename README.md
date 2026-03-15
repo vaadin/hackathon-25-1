@@ -14,7 +14,7 @@ I chose two apps with very different complexity profiles:
 
 ## Issues found
 
-During the hackathon I identified eight issues in SwingBridge, opened tickets, and submitted PRs with fixes:
+During the hackathon I identified nine issues in SwingBridge, opened tickets, and submitted PRs with fixes:
 
 | Issue | PR | Description |
 |-------|-----|-------------|
@@ -26,12 +26,13 @@ During the hackathon I identified eight issues in SwingBridge, opened tickets, a
 | [#145](https://github.com/vaadin/vaadin-swing-bridge/issues/145) | [#151](https://github.com/vaadin/vaadin-swing-bridge/pull/151) | Canvas not updated when Swing app resizes its own window internally |
 | [#152](https://github.com/vaadin/vaadin-swing-bridge/issues/152) | [#153](https://github.com/vaadin/vaadin-swing-bridge/pull/153) | Save As triggers spurious overwrite confirmation on temp file |
 | [#154](https://github.com/vaadin/vaadin-swing-bridge/issues/154) | [#155](https://github.com/vaadin/vaadin-swing-bridge/pull/155) | `FileDialog` download defaults to "download" with no file extension |
+| [#156](https://github.com/vaadin/vaadin-swing-bridge/issues/156) | [#157](https://github.com/vaadin/vaadin-swing-bridge/pull/157) | `System.exit()` in Swing app kills the entire server process |
 
 ## Demo
 
-https://github.com/vaadin/hackathon-25-1/raw/manolo/hackathon-25-1_x2.mp4
+![Demo](hackathon-25-1.gif)
 
-The video shows:
+The demo shows:
 
 - **Responsive layout**: the Swing app adapts to the browser viewport. Resizing the window and toggling the AppLayout drawer panel both resize the app in real time.
 - **File upload**: a PDF music score is uploaded through the browser. Audiveris receives it and processes each page, running OCR and music recognition.
