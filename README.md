@@ -14,7 +14,7 @@ I chose two apps with very different complexity profiles:
 
 ## Demo
 
-<video src="hackathon-25-1_x2.mp4" controls width="100%"></video>
+https://github.com/vaadin/hackathon-25-1/raw/manolo/hackathon-25-1_x2.mp4
 
 The video shows:
 
